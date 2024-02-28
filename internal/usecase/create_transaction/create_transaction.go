@@ -8,7 +8,7 @@ import (
 type CreateTransactionInputDTO struct {
 	AccountIDFrom string
 	AccountIDTo   string
-	Ammount       float64
+	Amount        float64
 }
 
 type CreateTransactionOutputDTO struct {
@@ -36,7 +36,7 @@ func (uc *CreateTransactionUseCase) Execute(input CreateTransactionInputDTO) (*C
 	if err != nil {
 		return nil, err
 	}
-	transaction, err := entity.NewTransaction(accountFrom, accountTo, input.Ammount)
+	transaction, err := entity.NewTransaction(accountFrom, accountTo, input.Amount)
 	if err != nil {
 		return nil, err
 	}
