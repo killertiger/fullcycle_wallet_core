@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/killertiger/fullcycle_wallet_core/internal/entity"
+	"github.com/killertiger/fullcycle_wallet_core/internal/event"
+	"github.com/killertiger/fullcycle_wallet_core/pkg/events"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -53,7 +55,10 @@ func TestCreateTransactionUseCase_Execute(t *testing.T) {
 		Amount:        100,
 	}
 
-	uc := NewCreateTransactionUseCase(mockTransaction, mockAccount)
+	dispatcher := events.NewEventDispatcher()
+	event := event.NewTransactionCreated()
+
+	uc := NewCreateTransactionUseCase(mockTransaction, mockAccount, dispatcher, event)
 	outputDto, err := uc.Execute(inputDto)
 	assert.Nil(t, err)
 	assert.NotNil(t, outputDto)
