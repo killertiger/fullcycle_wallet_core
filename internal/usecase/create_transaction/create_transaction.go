@@ -1,4 +1,4 @@
-package createtransaction
+package create_transaction
 
 import (
 	"github.com/killertiger/fullcycle_wallet_core/internal/entity"

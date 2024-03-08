@@ -1,4 +1,4 @@
-package createaccount
+package create_account
 
 import (
 	"github.com/killertiger/fullcycle_wallet_core/internal/entity"
