@@ -10,6 +10,8 @@ import (
 	"github.com/killertiger/fullcycle_wallet_core/internal/usecase/create_account"
 	"github.com/killertiger/fullcycle_wallet_core/internal/usecase/create_client"
 	"github.com/killertiger/fullcycle_wallet_core/internal/usecase/create_transaction"
+	"github.com/killertiger/fullcycle_wallet_core/internal/web"
+	"github.com/killertiger/fullcycle_wallet_core/internal/web/webserver"
 	"github.com/killertiger/fullcycle_wallet_core/pkg/events"
 )
 
@@ -32,4 +34,16 @@ func main() {
 	createClientUseCase := create_client.NewCreateClientUseCase(clientDb)
 	createAccountUseCase := create_account.NewCreateAccountUseCase(accountDb, clientDb)
 	createTransactionUseCase := create_transaction.NewCreateTransactionUseCase(transactionDb, accountDb, eventDispatcher, transactionCreatedEvent)
+
+	webserver := webserver.NewWebServer(":3000")
+
+	clientHandler := web.NewWebClientHandler(*createClientUseCase)
+	accountHandler := web.NewWebAccountHandler(*createAccountUseCase)
+	transactionHandler := web.NewWebTransactionHandler(*createTransactionUseCase)
+
+	webserver.AddHandler("/clients", clientHandler.CreateClient)
+	webserver.AddHandler("/accounts", accountHandler.CreateAccount)
+	webserver.AddHandler("/transactions", transactionHandler.CreateTransaction)
+
+	webserver.Start()
 }
