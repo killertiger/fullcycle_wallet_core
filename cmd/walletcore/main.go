@@ -5,15 +5,18 @@ import (
 	"database/sql"
 	"fmt"
 
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/killertiger/fullcycle_wallet_core/internal/database"
 	"github.com/killertiger/fullcycle_wallet_core/internal/event"
+	"github.com/killertiger/fullcycle_wallet_core/internal/event/handler"
 	"github.com/killertiger/fullcycle_wallet_core/internal/usecase/create_account"
 	"github.com/killertiger/fullcycle_wallet_core/internal/usecase/create_client"
 	"github.com/killertiger/fullcycle_wallet_core/internal/usecase/create_transaction"
 	"github.com/killertiger/fullcycle_wallet_core/internal/web"
 	"github.com/killertiger/fullcycle_wallet_core/internal/web/webserver"
 	"github.com/killertiger/fullcycle_wallet_core/pkg/events"
+	"github.com/killertiger/fullcycle_wallet_core/pkg/kafka"
 	"github.com/killertiger/fullcycle_wallet_core/pkg/uow"
 )
 
@@ -25,13 +28,18 @@ func main() {
 	}
 	defer db.Close()
 
+	configMap := ckafka.ConfigMap{
+		"bootstrap.servers": "kafka:9092",
+		"group.id":          "wallet",
+	}
+	kafkaProducer := kafka.NewKafkaProducer(&configMap)
+
 	eventDispatcher := events.NewEventDispatcher()
+	eventDispatcher.Register("TransactionCreated", handler.NewTransactionCreatedKafkaHandler(kafkaProducer))
 	transactionCreatedEvent := event.NewTransactionCreated()
-	// eventDispatcher.Register("TransactionCreated", handler)
 
 	clientDb := database.NewClientDB(db)
 	accountDb := database.NewAccountDB(db)
-	// transactionDb := database.NewTransactionDB(db)
 
 	ctx := context.Background()
 	uow := uow.NewUow(ctx, db)
