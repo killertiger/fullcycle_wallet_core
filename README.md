@@ -16,6 +16,9 @@ Running docker container:
 docker compose up -d
 ```
 
+Access Kafka through the url: http://localhost:9021/
+Create a topic: `transactions`
+
 Connecting to mysql:
 ```
 docker exec -it fullcycle_wallet_core-mysql-1 bash
