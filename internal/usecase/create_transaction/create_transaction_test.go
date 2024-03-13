@@ -1,10 +1,12 @@
 package create_transaction
 
 import (
+	"context"
 	"testing"
 
 	"github.com/killertiger/fullcycle_wallet_core/internal/entity"
 	"github.com/killertiger/fullcycle_wallet_core/internal/event"
+	"github.com/killertiger/fullcycle_wallet_core/internal/usecase/mocks"
 	"github.com/killertiger/fullcycle_wallet_core/pkg/events"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -42,12 +44,8 @@ func TestCreateTransactionUseCase_Execute(t *testing.T) {
 	account2 := entity.NewAccount(client2)
 	account2.Credit(1000)
 
-	mockAccount := &AccountGatewayMock{}
-	mockAccount.On("FindByID", account1.ID).Return(account1, nil)
-	mockAccount.On("FindByID", account2.ID).Return(account2, nil)
-
-	mockTransaction := &TransactionGatewayMock{}
-	mockTransaction.On("Create", mock.Anything).Return(nil)
+	mockUow := &mocks.UowMock{}
+	mockUow.On("Do", mock.Anything, mock.Anything).Return(nil)
 
 	inputDto := CreateTransactionInputDTO{
 		AccountIDFrom: account1.ID,
@@ -57,13 +55,12 @@ func TestCreateTransactionUseCase_Execute(t *testing.T) {
 
 	dispatcher := events.NewEventDispatcher()
 	event := event.NewTransactionCreated()
+	ctx := context.Background()
 
-	uc := NewCreateTransactionUseCase(mockTransaction, mockAccount, dispatcher, event)
-	outputDto, err := uc.Execute(inputDto)
+	uc := NewCreateTransactionUseCase(mockUow, dispatcher, event)
+	outputDto, err := uc.Execute(ctx, inputDto)
 	assert.Nil(t, err)
 	assert.NotNil(t, outputDto)
-	mockAccount.AssertExpectations(t)
-	mockTransaction.AssertExpectations(t)
-	mockAccount.AssertNumberOfCalls(t, "FindByID", 2)
-	mockTransaction.AssertNumberOfCalls(t, "Create", 1)
+	mockUow.AssertExpectations(t)
+	mockUow.AssertNumberOfCalls(t, "Do", 1)
 }
