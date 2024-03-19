@@ -17,7 +17,9 @@ docker compose up -d
 ```
 
 Access Kafka through the url: http://localhost:9021/
-Create a topic: `transactions`
+Create topics:
+- `transactions`
+- `balances`
 
 Connecting to mysql:
 ```
@@ -27,6 +29,7 @@ mysql -u root -proot wallet
 
 Running app:
 ```
+docker exec -it goapp bash
 go run cmd/walletcore/main.go
 ```
 

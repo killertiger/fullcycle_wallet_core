@@ -23,7 +23,7 @@ func (ed *EventDispatcher) Dispatch(event EventInterface) error {
 
 		for _, handler := range handlers {
 			wg.Add(1)
-			go handler.Handle(event, wg)
+			handler.Handle(event, wg)
 		}
 	}
 
