@@ -69,4 +69,17 @@ services:
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
-      
+  
+  wallet_consumer:
+    container_name: wallet_consumer
+    build: ./wallet_consumer
+    volumes:
+      - ./wallet_consumer:/app
+    # depends_on:
+    #   - kafka
+    ports:
+      - "8000:8000"
+    # environment:
+    #   - KAFKA_BROKER=kafka:29092
+    #   - KAFKA_TOPIC=wallet
+    command: python manage.py runserver 0.0.0.0:8000
