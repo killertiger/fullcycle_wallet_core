@@ -4,22 +4,24 @@ This project is based on the Fullcycle modules
 - "Arquitetura baseada em microsserviços"
 - "EDA - Event Driven Architecture"
 
-# Development
 
-Run tests
-```
-go test ./...
-```
+# Application
 
 Running docker container:
 ```
 docker compose up -d
 ```
 
-Access Kafka through the url: http://localhost:9021/
-Create topics:
-- `transactions`
-- `balances`
+
+Golang application:
+http://localhost:3000/
+
+Python application:
+http://localhost:3003/
+
+
+Kafka:
+http://localhost:9021/
 
 Connecting to mysql:
 ```
@@ -27,10 +29,10 @@ docker exec -it fullcycle_wallet_core-mysql-1 bash
 mysql -u root -proot wallet
 ```
 
-Running app:
+Running tests:
 ```
 docker exec -it goapp bash
-go run cmd/walletcore/main.go
+o test ./...
 ```
 
 Http requests:
