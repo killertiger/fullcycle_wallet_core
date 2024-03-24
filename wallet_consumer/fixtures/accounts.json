@@ -1,0 +1,16 @@
+[
+    {
+      "model": "core.account",
+      "pk": "ee21871d-e49c-442b-90f5-0d4b0599c5c1",
+      "fields": {
+        "balance": 1000
+      }
+    },
+    {
+      "model": "core.account",
+      "pk": "e9ce715a-49f1-499d-a44c-c17e3bee8d1a",
+      "fields": {
+        "balance": 1000
+      }
+    }
+  ]

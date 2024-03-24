@@ -1,7 +1,7 @@
 from decimal import Decimal
 import json
 import threading
-from confluent_kafka import Consumer, KafkaException
+from confluent_kafka import Consumer, KafkaException, KafkaError
 
 from core.models import Account
 

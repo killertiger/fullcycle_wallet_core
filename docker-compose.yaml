@@ -8,9 +8,10 @@ services:
       - .:/app
     ports:
       - 3000:3000
+    command: /app/entrypoint.sh
 
   mysql:
-    image: mysql:5.7
+    image: mysql:8.3
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wallet
@@ -19,7 +20,8 @@ services:
       - 3306:3306
     volumes:
       - .docker/mysql:/var/lib/mysql
-  
+      - ./internal/database/dump:/docker-entrypoint-initdb.d
+
   zookeeper:
     image: "confluentinc/cp-zookeeper:6.1.0"
     container_name: zookeeper
@@ -70,16 +72,33 @@ services:
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
   
+  init-kafka:
+    image: confluentinc/cp-enterprise-kafka:6.1.0
+    container_name: init-kafka
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic transactions --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic balances --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29092 --list
+      "
+
   wallet_consumer:
     container_name: wallet_consumer
     build: ./wallet_consumer
     volumes:
       - ./wallet_consumer:/app
-    # depends_on:
-    #   - kafka
+    depends_on:
+      - init-kafka
+      - mysql
     ports:
-      - "8000:8000"
-    # environment:
-    #   - KAFKA_BROKER=kafka:29092
-    #   - KAFKA_TOPIC=wallet
-    command: python manage.py runserver 0.0.0.0:8000
+      - "3003:3003"
+    command: bash -c "/app/entrypoint.sh & /app/entrypoint_consumer.sh"
