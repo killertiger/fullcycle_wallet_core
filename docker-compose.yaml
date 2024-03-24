@@ -21,6 +21,11 @@ services:
     volumes:
       - .docker/mysql:/var/lib/mysql
       - ./internal/database/dump:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-uroot", "-ppass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   zookeeper:
     image: "confluentinc/cp-zookeeper:6.1.0"
@@ -97,8 +102,10 @@ services:
     volumes:
       - ./wallet_consumer:/app
     depends_on:
-      - init-kafka
-      - mysql
+      mysql:
+        condition: service_healthy
+      init-kafka:
+        condition: service_completed_successfully
     ports:
       - "3003:3003"
     command: bash -c "/app/entrypoint.sh & /app/entrypoint_consumer.sh"

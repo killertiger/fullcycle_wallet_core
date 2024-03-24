@@ -32,7 +32,15 @@ POST http://localhost:3000/transactions HTTP/1.1
 Content-Type: application/json
 
 {
-    "account_id_from": "ee21871d-e49c-442b-90f5-0d4b0599c5c1",
-    "account_id_to": "e9ce715a-49f1-499d-a44c-c17e3bee8d1a",
+    "account_id_from": "31168c15-b24c-409b-b9fa-693db404a9db",
+    "account_id_to": "24b1b373-c52a-4687-9a71-10f60b61b4a4",
     "amount": 1
 }
+
+###
+
+GET http://localhost:3003/balances/31168c15-b24c-409b-b9fa-693db404a9db
+
+###
+
+GET http://localhost:3003/balances/24b1b373-c52a-4687-9a71-10f60b61b4a4
