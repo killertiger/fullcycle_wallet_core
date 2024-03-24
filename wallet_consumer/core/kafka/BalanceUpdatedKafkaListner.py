@@ -1,9 +1,12 @@
+from decimal import Decimal
 import json
 import threading
 from confluent_kafka import Consumer, KafkaException
 
+from core.models import Account
+
 running=True
-conf = {'bootstrap.servers': "kafka:9092",
+conf = {'bootstrap.servers': "kafka:29092",
         'auto.offset.reset': 'smallest',
         'group.id': "user_group"}
 
@@ -14,11 +17,23 @@ class BalanceUpdatedKafkaListner(threading.Thread):
         threading.Thread.__init__(self)
         self.consumer = Consumer(conf)
 
+    def update_balance(self, account_id: str, balance: Decimal):
+        account = Account.objects.filter(account_id=account_id).first()
+        if account is None:
+            account = Account(account_id=account_id)
+        account.balance = Decimal(balance)
+        account.save()
+
     def msg_process(self, msg):
         #Handle Message
         print('---------> Got message Processing.....')
         message = json.loads(msg.value().decode('utf-8'))
         
+        print(message)
+        
+        self.update_balance(message['Payload']['account_id_from'], message['Payload']['balance_account_id_from'])
+        self.update_balance(message['Payload']['account_id_to'], message['Payload']['balance_account_id_to'])
+
         print(message)
 
     def run(self):
